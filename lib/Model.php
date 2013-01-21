@@ -812,7 +812,10 @@ class Model
 			}
 		}
 		else
-			$table->insert($attributes);
+                {
+                    if($table->insert($attributes)->rowCount() < 1)
+                        return false;  
+                }
 
 		// if we've got an autoincrementing/sequenced pk set it
 		// don't need this check until the day comes that we decide to support composite pks
