@@ -845,20 +845,26 @@ class Model
 
 		if ($this->is_dirty())
 		{
-			$pk = $this->values_for_pk();
+                    $pk = $this->values_for_pk();
 
-			if (empty($pk))
-				throw new ActiveRecordException("Cannot update, no primary key defined for: " . get_called_class());
+                    if (empty($pk))
+                            throw new ActiveRecordException("Cannot update, no primary key defined for: " . get_called_class());
 
-			if (!$this->invoke_callback('before_update',false))
-				return false;
+                    if (!$this->invoke_callback('before_update',false))
+                            return false;
 
-			$dirty = $this->dirty_attributes();
-			static::table()->update($dirty,$pk);
-			$this->invoke_callback('after_update',false);
+                    $dirty = $this->dirty_attributes();
+                    $updateResult = static::table()->update($dirty,$pk);
+
+                    if($updateResult->rowCount() == 0)                      
+                        throw new ActiveRecordException("Cannot update, record does not exist.");
+
+                    $this->invoke_callback('after_update',false);
+
+                    return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
